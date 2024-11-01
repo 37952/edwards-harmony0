@@ -4,6 +4,8 @@ namespace myTiles {
     export const transparency16 = image.ofBuffer(hex``);
     //% fixedInstance jres blockIdentity=images._tile
     export const tile1 = image.ofBuffer(hex``);
+    //% fixedInstance jres blockIdentity=images._tile
+    export const tile2 = image.ofBuffer(hex``);
 
     helpers._registerFactory("tilemap", function(name: string) {
         switch(helpers.stringTrim(name)) {
@@ -27,7 +29,7 @@ namespace myTiles {
 . . . . . . . . . . . . . . . . 
 `, [myTiles.transparency16], TileScale.Sixteen);
             case "level0":
-            case "level2":return tiles.createTilemap(hex`1000100000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000101010000000001000000000000000100000000000000000000000101010000000000000000000000000000000000000000000000000101010100000000000001010001000000000000000000000000010000000000000000000100010100000000000001000000000000000000000000000000000000000000000100000001000000000000000000000100000000010000000002000001010100000000000100000000010100000000000000000001000000010000000000000000000000010000000000000000000000000000000000000000`, img`
+            case "level2":return tiles.createTilemap(hex`1000100000000000000000000000000000000000000000000000000000000000000000000000000400010000000000000101010000000001000000000000000100000000000000000000000101010000000000000000000000000000000000000000000000000101010100000000000001010001000000000000000000000000010000000000000000000100010100000000000001000000000000000000000000000000000000000000000100000001000000000000000000000100000000010000000002000001010100000000000100000000010100000000000000000001010000010000000000000000000000010000000003030303030303030303030303030303`, img`
 . . . . . . . . . . . . . . . . 
 . . . . . . . . . . . . . . . . 
 . . . . . 2 . . . . . . 2 2 2 . 
@@ -41,10 +43,10 @@ namespace myTiles {
 . . . . . . . 2 . . . 2 . . . . 
 . . . . . . 2 . . . . 2 . . . . 
 . . . 2 2 2 . . . . . 2 . . . . 
-2 2 . . . . . . . . . 2 . . . 2 
+2 2 . . . . . . . . . 2 2 . . 2 
 . . . . . . . . . . . 2 . . . . 
 . . . . . . . . . . . . . . . . 
-`, [myTiles.transparency16,myTiles.tile1,sprites.builtin.forestTiles0], TileScale.Sixteen);
+`, [myTiles.transparency16,myTiles.tile1,sprites.builtin.forestTiles0,myTiles.tile2,sprites.swamp.swampTile13], TileScale.Sixteen);
         }
         return null;
     })
@@ -54,6 +56,8 @@ namespace myTiles {
             case "transparency16":return transparency16;
             case "myTile":
             case "tile1":return tile1;
+            case "myTile0":
+            case "tile2":return tile2;
         }
         return null;
     })

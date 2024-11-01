@@ -1,3 +1,16 @@
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile0`, function (sprite, location) {
+    game.gameOver(false)
+})
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (mySprite.vy == 0) {
+        mySprite.vy = -150
+    }
+})
+scene.onOverlapTile(SpriteKind.Player, sprites.swamp.swampTile13, function (sprite, location) {
+    game.setGameOverEffect(true, effects.slash)
+    game.gameOver(true)
+})
+let mySprite: Sprite = null
 scene.setBackgroundImage(img`
     ................................................................................................................................................................
     ................................................................................................................................................................
@@ -121,7 +134,7 @@ scene.setBackgroundImage(img`
     cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     `)
 tiles.setCurrentTilemap(tilemap`level0`)
-let mySprite = sprites.create(img`
+mySprite = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
@@ -139,3 +152,15 @@ let mySprite = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
     `, SpriteKind.Player)
+tiles.placeOnRandomTile(mySprite, sprites.builtin.forestTiles0)
+scene.cameraFollowSprite(mySprite)
+controller.moveSprite(mySprite, 100, 0)
+mySprite.ay = 370
+game.onUpdate(function () {
+    if (mySprite.isHittingTile(CollisionDirection.Left) || mySprite.isHittingTile(CollisionDirection.Right)) {
+        mySprite.vy = 0
+        mySprite.ay = 0
+    } else {
+        mySprite.ay = 370
+    }
+})
