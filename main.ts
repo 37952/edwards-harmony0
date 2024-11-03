@@ -34,10 +34,86 @@ scene.onOverlapTile(SpriteKind.Player, sprites.swamp.swampTile13, function (spri
     game.setGameOverEffect(true, effects.slash)
     game.gameOver(true)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.coin, function (sprite, otherSprite) {
+    info.changeScoreBy(1)
+    sprites.destroy(otherSprite)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.flower, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite, effects.trail, 500)
+    bee = sprites.create(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `, SpriteKind.Enemy)
+    animation.runImageAnimation(
+    bee,
+    [img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . f f . . . . . . . . 
+        . . . . 5 5 5 5 5 5 . . . . . . 
+        . . . . 5 f f f f 5 . . . . . . 
+        . . 9 9 5 5 5 5 5 5 9 9 . . . . 
+        . . 9 9 5 f f f f 5 9 9 . . . . 
+        . . 9 9 9 f f f f 9 9 9 . . . . 
+        . . . . . f f f f . . . . . . . 
+        . . . . . f f f f . . . . . . . 
+        . . . . . 5 f f 5 . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . 9 9 9 f f f f 9 9 9 . . . . 
+        . . . . . f f f f . . . . . . . 
+        . . . . . f f f f . . . . . . . 
+        . . . . . 5 f f 5 . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `],
+    500,
+    true
+    )
+    bee.setPosition(mySprite.x + 80, mySprite.x + 80)
+    bee.follow(mySprite, 90)
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
     info.changeScoreBy(7)
     sprites.destroy(orb)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite)
+    if (mySprite.y < otherSprite.y) {
+        info.changeScoreBy(3)
+    } else {
+        info.changeLifeBy(-1)
+    }
+})
+let bee: Sprite = null
 let projectile: Sprite = null
 let mySprite2: Sprite = null
 let coin: Sprite = null
@@ -381,6 +457,67 @@ for (let value of tiles.getTilesByType(assets.tile`myTile2`)) {
     tiles.setTileAt(value, assets.tile`transparency16`)
 }
 game.onUpdate(function () {
+    mySprite.setImage(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . e e e . . . . . . . . . . . 
+        . . e 1 e e e f f f . . . . . . 
+        . . e e 1 1 e f 5 f f . . . . . 
+        . . . e e 1 1 f f f . . . . . . 
+        . . . . e e f f f . . . . . . . 
+        . . . . . e f f f . . . . . . . 
+        . . . . . . f f f . . . . . . . 
+        . . . . . . f . f . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `)
+    if (mySprite.vx > 0) {
+        mySprite.setImage(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . e e e e e e . . . . . . . 
+            . . . e e e 1 1 e e . . . . . . 
+            . . . . . e e e 1 e . . . . . . 
+            . . . . e 1 1 1 e f f f . . . . 
+            . . . . e e e e e f f 5 f . . . 
+            . . . . . f f f f f f f . . . . 
+            . . . . . f . f . . . . . . . . 
+            `)
+    }
+    if (mySprite.vy > 0) {
+        mySprite.setImage(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . e e e . . . . . . . . . . . 
+            . . e 1 e e e f f f . . . . . . 
+            . . e e 1 1 e f 5 f f . . . . . 
+            . . . e e 1 1 f f f . . . . . . 
+            . . . . e e f f f . . . . . . . 
+            . . . . . e f f f . . . . . . . 
+            . . . . . . f f f . . . . . . . 
+            . . . . . . f . f . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `)
+    }
+    if (mySprite.vx < 0) {
+        mySprite.image.flipX()
+    }
     if (mySprite.isHittingTile(CollisionDirection.Left) || mySprite.isHittingTile(CollisionDirection.Right)) {
         mySprite.vy = 0
         mySprite.ay = 0
