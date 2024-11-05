@@ -1,14 +1,25 @@
 namespace SpriteKind {
     export const coin = SpriteKind.create()
     export const flower = SpriteKind.create()
+    export const rocket = SpriteKind.create()
+    export const chest = SpriteKind.create()
+    export const boss = SpriteKind.create()
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile0`, function (sprite, location) {
+    game.gameOver(false)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.boss, function (sprite, otherSprite) {
+    game.setGameOverEffect(false, effects.blizzard)
     game.gameOver(false)
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (mySprite.vy == 0) {
         mySprite.vy = -150
     }
+})
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.rocket, function (sprite, otherSprite) {
+    sprites.destroy(mySprite3)
+    tiles.placeOnRandomTile(mySprite, sprites.dungeon.chestClosed)
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     projectile = sprites.createProjectileFromSprite(img`
@@ -30,9 +41,42 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         . . . . . . . . . . . . . . . . 
         `, mySprite, 201, 5)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.rocket, function (sprite, otherSprite) {
+    info.changeLifeBy(-2)
+})
+statusbars.onZero(StatusBarKind.EnemyHealth, function (status) {
+    sprites.destroy(status.spriteAttachedTo(), effects.fire, 500)
+})
 scene.onOverlapTile(SpriteKind.Player, sprites.swamp.swampTile13, function (sprite, location) {
     game.setGameOverEffect(true, effects.slash)
     game.gameOver(true)
+})
+info.onScore(100, function () {
+    tiles.setCurrentTilemap(tilemap`level4`)
+    mySprite5 = sprites.create(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . f f f f f f . . . . . . 
+        . . . . f 3 3 3 3 3 f . . . . . 
+        . . . . f 3 3 3 3 3 f . . . . . 
+        . . . . f 3 f 3 f 3 f . . . . . 
+        . . . . f 3 3 f 3 3 f . . . . . 
+        . . . . f 3 f 3 f 3 f . . . . . 
+        . . . . f f 3 3 3 f f . . . . . 
+        . . . . . f f f f f . . . . . . 
+        . . . . 8 8 8 8 8 8 8 . . . . . 
+        . . 9 9 8 9 8 8 9 9 8 9 9 . . . 
+        . . 9 9 8 9 8 8 8 9 8 9 9 . . . 
+        . . . . 8 9 9 8 8 9 8 . . . . . 
+        . . . . . 8 8 8 8 8 . . . . . . 
+        `, SpriteKind.boss)
+    tiles.placeOnRandomTile(mySprite5, assets.tile`myTile4`)
+    tiles.placeOnRandomTile(mySprite, assets.tile`myTile5`)
+    mySprite5.follow(mySprite, 24)
+    statusbar = statusbars.create(20, 4, StatusBarKind.EnemyHealth)
+    statusbar.attachToSprite(mySprite5)
+    statusbar.setColor(7, 2)
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.coin, function (sprite, otherSprite) {
     info.changeScoreBy(1)
@@ -101,6 +145,14 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.flower, function (sprite, otherS
     bee.setPosition(mySprite.x + 80, mySprite.x + 80)
     bee.follow(mySprite, 90)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.chest, function (sprite, otherSprite) {
+    sprites.destroy(mySprite4)
+    info.changeScoreBy(71)
+})
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.boss, function (sprite, otherSprite) {
+    sprites.destroy(sprite)
+    statusbars.getStatusBarAttachedTo(StatusBarKind.EnemyHealth, mySprite5).value += -3
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
     info.changeScoreBy(7)
     sprites.destroy(orb)
@@ -114,7 +166,11 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     }
 })
 let bee: Sprite = null
+let statusbar: StatusBarSprite = null
+let mySprite5: Sprite = null
 let projectile: Sprite = null
+let mySprite4: Sprite = null
+let mySprite3: Sprite = null
 let mySprite2: Sprite = null
 let coin: Sprite = null
 let orb: Sprite = null
@@ -456,6 +512,44 @@ for (let value of tiles.getTilesByType(assets.tile`myTile2`)) {
     tiles.placeOnTile(mySprite2, value)
     tiles.setTileAt(value, assets.tile`transparency16`)
 }
+mySprite3 = sprites.create(img`
+    . . . . . . 5 5 . . . . . . . . 
+    . . . . . 5 5 5 . . . . . . . . 
+    . . . . . 5 5 5 5 . . . . . . . 
+    . . . . 5 5 5 5 5 5 . . . . . . 
+    . . . 5 5 5 5 5 5 5 5 . . . . . 
+    . . . . 2 2 7 7 7 7 . . . . . . 
+    . . . . 7 7 7 7 7 2 . . . . . . 
+    . . . . 7 7 7 7 7 7 . . . . . . 
+    . . . 7 2 7 7 7 7 7 . . . . . . 
+    . . 7 7 2 7 7 7 7 7 . . . . . . 
+    . . 7 7 7 7 7 7 7 7 . . . . . . 
+    . . . 7 7 7 7 7 7 2 . . . . . . 
+    . . . . 7 7 7 7 . 2 . . . . . . 
+    . . . . . 7 7 . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    `, SpriteKind.rocket)
+tiles.placeOnRandomTile(mySprite3, sprites.builtin.forestTiles8)
+mySprite4 = sprites.create(img`
+    . . b b b b b b b b b b b b . . 
+    . b e 4 4 4 4 4 4 4 4 4 4 e b . 
+    b e 4 4 4 4 4 4 4 4 4 4 4 4 e b 
+    b e 4 4 4 4 4 4 4 4 4 4 4 4 e b 
+    b e 4 4 4 4 4 4 4 4 4 4 4 4 e b 
+    b e e 4 4 4 4 4 4 4 4 4 4 e e b 
+    b e e e e e e e e e e e e e e b 
+    b e e e e e e e e e e e e e e b 
+    b b b b b b b d d b b b b b b b 
+    c b b b b b b c c b b b b b b c 
+    c c c c c c b c c b c c c c c c 
+    b e e e e e c b b c e e e e e b 
+    b e e e e e e e e e e e e e e b 
+    b c e e e e e e e e e e e e c b 
+    b b b b b b b b b b b b b b b b 
+    . b b . . . . . . . . . . b b . 
+    `, SpriteKind.chest)
+tiles.placeOnRandomTile(mySprite4, sprites.dungeon.chestClosed)
 game.onUpdate(function () {
     mySprite.setImage(img`
         . . . . . . . . . . . . . . . . 
@@ -475,46 +569,6 @@ game.onUpdate(function () {
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         `)
-    if (mySprite.vx > 0) {
-        mySprite.setImage(img`
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . e e e e e e . . . . . . . 
-            . . . e e e 1 1 e e . . . . . . 
-            . . . . . e e e 1 e . . . . . . 
-            . . . . e 1 1 1 e f f f . . . . 
-            . . . . e e e e e f f 5 f . . . 
-            . . . . . f f f f f f f . . . . 
-            . . . . . f . f . . . . . . . . 
-            `)
-    }
-    if (mySprite.vy > 0) {
-        mySprite.setImage(img`
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . e e e . . . . . . . . . . . 
-            . . e 1 e e e f f f . . . . . . 
-            . . e e 1 1 e f 5 f f . . . . . 
-            . . . e e 1 1 f f f . . . . . . 
-            . . . . e e f f f . . . . . . . 
-            . . . . . e f f f . . . . . . . 
-            . . . . . . f f f . . . . . . . 
-            . . . . . . f . f . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            `)
-    }
     if (mySprite.vx < 0) {
         mySprite.image.flipX()
     }
