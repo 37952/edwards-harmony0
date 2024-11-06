@@ -8,6 +8,9 @@ namespace SpriteKind {
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile0`, function (sprite, location) {
     game.gameOver(false)
 })
+info.onScore(101, function () {
+    tiles.setCurrentTilemap(tilemap`level6`)
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.boss, function (sprite, otherSprite) {
     game.setGameOverEffect(false, effects.blizzard)
     game.gameOver(false)
@@ -39,13 +42,17 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
-        `, mySprite, 201, 5)
+        `, mySprite, 50, 0)
+    if (mySprite.image == mySprite_right_image) {
+        projectile.vx = -100
+    }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.rocket, function (sprite, otherSprite) {
     info.changeLifeBy(-2)
 })
 statusbars.onZero(StatusBarKind.EnemyHealth, function (status) {
     sprites.destroy(status.spriteAttachedTo(), effects.fire, 500)
+    info.changeScoreBy(1)
 })
 scene.onOverlapTile(SpriteKind.Player, sprites.swamp.swampTile13, function (sprite, location) {
     game.setGameOverEffect(true, effects.slash)
@@ -147,7 +154,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.flower, function (sprite, otherS
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.chest, function (sprite, otherSprite) {
     sprites.destroy(mySprite4)
-    info.changeScoreBy(71)
+    info.changeScoreBy(74)
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.boss, function (sprite, otherSprite) {
     sprites.destroy(sprite)
@@ -175,6 +182,7 @@ let mySprite2: Sprite = null
 let coin: Sprite = null
 let orb: Sprite = null
 let mySprite: Sprite = null
+let mySprite_right_image: Image = null
 scene.setBackgroundImage(img`
     ................................................................................................................................................................
     ................................................................................................................................................................
@@ -297,8 +305,9 @@ scene.setBackgroundImage(img`
     cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     `)
+let GRAVITY = 370
 tiles.setCurrentTilemap(tilemap`level0`)
-mySprite = sprites.create(img`
+mySprite_right_image = img`
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
@@ -315,11 +324,14 @@ mySprite = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
-    `, SpriteKind.Player)
+    `
+let mySprite_left_image = mySprite_right_image.clone()
+mySprite_left_image.flipX()
+mySprite = sprites.create(mySprite_right_image, SpriteKind.Player)
 tiles.placeOnRandomTile(mySprite, sprites.builtin.forestTiles0)
 scene.cameraFollowSprite(mySprite)
 controller.moveSprite(mySprite, 100, 0)
-mySprite.ay = 370
+mySprite.ay = GRAVITY
 orb = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . 6 6 6 6 . . . . . . 
@@ -551,26 +563,10 @@ mySprite4 = sprites.create(img`
     `, SpriteKind.chest)
 tiles.placeOnRandomTile(mySprite4, sprites.dungeon.chestClosed)
 game.onUpdate(function () {
-    mySprite.setImage(img`
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . e e e . . . . . . . . . . . 
-        . . e 1 e e e f f f . . . . . . 
-        . . e e 1 1 e f 5 f f . . . . . 
-        . . . e e 1 1 f f f . . . . . . 
-        . . . . e e f f f . . . . . . . 
-        . . . . . e f f f . . . . . . . 
-        . . . . . . f f f . . . . . . . 
-        . . . . . . f . f . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        `)
-    if (mySprite.vx < 0) {
-        mySprite.image.flipX()
+    if (mySprite.vx > 0) {
+        mySprite.setImage(mySprite_right_image)
+    } else if (mySprite.vx < 0) {
+        mySprite.setImage(mySprite_left_image)
     }
     if (mySprite.isHittingTile(CollisionDirection.Left) || mySprite.isHittingTile(CollisionDirection.Right)) {
         mySprite.vy = 0
